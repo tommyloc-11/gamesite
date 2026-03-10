@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="nl">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>1000+ Games</title>
 
 <style>
@@ -15,43 +18,38 @@ color:white;
 }
 
 header{
-padding:20px;
-background:#020617;
 display:flex;
 justify-content:space-between;
-align-items:center;
-}
-
-.logo{
-font-size:26px;
-font-weight:bold;
+padding:15px;
+background:#020617;
 }
 
 #search{
-padding:10px;
-width:250px;
-border-radius:6px;
+padding:8px;
+border-radius:5px;
 border:none;
 }
 
 .categories{
 display:flex;
 gap:10px;
-padding:15px;
-overflow:auto;
+padding:10px;
 background:#020617;
+overflow-x:auto;
 }
 
-.cat{
+.categories button{
 background:#1e293b;
-padding:8px 15px;
+border:none;
+color:white;
+padding:8px 12px;
 border-radius:20px;
 cursor:pointer;
 }
 
 .games{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
 gap:20px;
 padding:20px;
 }
@@ -70,11 +68,13 @@ transform:scale(1.05);
 
 .game img{
 width:100%;
+height:120px;
+object-fit:cover;
 }
 
 .game h3{
 padding:10px;
-font-size:16px;
+font-size:14px;
 }
 
 #player{
@@ -85,7 +85,7 @@ width:100%;
 height:100%;
 background:black;
 display:none;
-flex-direction:column;
+z-index:999;
 }
 
 #player iframe{
@@ -101,36 +101,35 @@ right:20px;
 background:red;
 border:none;
 color:white;
-padding:10px 15px;
+padding:10px;
 font-size:18px;
 cursor:pointer;
 }
 
 </style>
+
 </head>
 
 <body>
 
 <header>
 
-<div class="logo">🎮 1000+ Games</div>
+<h2>🎮 1000+ Games</h2>
 
-<input id="search" placeholder="Zoek een game...">
+<input id="search" placeholder="Zoek game...">
 
 </header>
 
 <div class="categories">
 
-<div class="cat" onclick="filterGames('all')">All</div>
-<div class="cat" onclick="filterGames('action')">Action</div>
-<div class="cat" onclick="filterGames('arcade')">Arcade</div>
-<div class="cat" onclick="filterGames('racing')">Racing</div>
-<div class="cat" onclick="filterGames('puzzle')">Puzzle</div>
-<div class="cat" onclick="filterGames('shooting')">Shooting</div>
+<button onclick="filterCategory('all')">All</button>
+<button onclick="filterCategory('puzzle')">Puzzle</button>
+<button onclick="filterCategory('arcade')">Arcade</button>
+<button onclick="filterCategory('action')">Action</button>
 
 </div>
 
-<div class="games" id="games"></div>
+<div id="games" class="games"></div>
 
 <div id="player">
 
@@ -145,63 +144,68 @@ cursor:pointer;
 const games = [
 
 {
-title:"Subway Surfers",
-category:"arcade",
-img:"https://i.imgur.com/2DhmtJ4.jpeg",
-url:"https://example.com"
-},
-
-{
-title:"Drift Racing",
-category:"racing",
-img:"https://i.imgur.com/g1QXK4T.jpeg",
-url:"https://example.com"
-},
-
-{
-title:"Zombie Shooter",
-category:"shooting",
-img:"https://i.imgur.com/F3qJ1uM.jpeg",
-url:"https://example.com"
-},
-
-{
-title:"Puzzle Blocks",
+title:"2048",
 category:"puzzle",
-img:"https://i.imgur.com/VL0F3yx.jpeg",
-url:"https://example.com"
+image:"https://upload.wikimedia.org/wikipedia/commons/1/18/2048_logo.svg",
+url:"https://play2048.co/"
+},
+
+{
+title:"Hextris",
+category:"arcade",
+image:"https://hextris.io/images/hextris-logo.png",
+url:"https://hextris.io/"
+},
+
+{
+title:"Tetris",
+category:"puzzle",
+image:"https://upload.wikimedia.org/wikipedia/commons/7/7c/Tetris_logo.png",
+url:"https://tetris.com/play-tetris"
+},
+
+{
+title:"Snake",
+category:"arcade",
+image:"https://upload.wikimedia.org/wikipedia/commons/5/55/Snake_game.jpg",
+url:"https://playsnake.org/"
 }
 
 ]
 
-const container = document.getElementById("games")
+let current = games
 
-function loadGames(list){
+function displayGames(list){
+
+const container=document.getElementById("games")
 
 container.innerHTML=""
 
 list.forEach(game=>{
 
-container.innerHTML+=`
+const div=document.createElement("div")
 
-<div class="game" onclick="playGame('${game.url}')">
+div.className="game"
 
-<img src="${game.img}">
+div.innerHTML=`
+
+<img src="${game.image}">
 <h3>${game.title}</h3>
 
-</div>
-
 `
+
+div.onclick=()=>playGame(game.url)
+
+container.appendChild(div)
 
 })
 
 }
 
-loadGames(games)
-
 function playGame(url){
 
-document.getElementById("player").style.display="flex"
+document.getElementById("player").style.display="block"
+
 document.getElementById("gameFrame").src=url
 
 }
@@ -209,18 +213,20 @@ document.getElementById("gameFrame").src=url
 function closeGame(){
 
 document.getElementById("player").style.display="none"
+
 document.getElementById("gameFrame").src=""
 
 }
 
-function filterGames(cat){
+function filterCategory(cat){
 
 if(cat==="all"){
-loadGames(games)
-return
+current=games
+}else{
+current=games.filter(g=>g.category===cat)
 }
 
-loadGames(games.filter(g=>g.category===cat))
+displayGames(current)
 
 }
 
@@ -228,11 +234,11 @@ document.getElementById("search").addEventListener("input",function(){
 
 const value=this.value.toLowerCase()
 
-const filtered=games.filter(g=>g.title.toLowerCase().includes(value))
-
-loadGames(filtered)
+displayGames(current.filter(g=>g.title.toLowerCase().includes(value)))
 
 })
+
+displayGames(games)
 
 </script>
 
